@@ -60,6 +60,7 @@ namespace API
             services.AddScoped<UserRepository>();
             services.AddScoped<RoleRepository>();
             services.AddScoped<DepartmentRepository>();
+            services.AddScoped<AttendanceHistoryRepository>();
 
             services.AddDbContext<MyContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("APISistemAbsensi")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);

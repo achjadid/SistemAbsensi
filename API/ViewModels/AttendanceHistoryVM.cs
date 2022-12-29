@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using API.Models;
+using System;
 
-namespace API.Models
+namespace API.ViewModels
 {
-    public class AttendanceHistory
+    public class AttendanceHistoryVM
     {
-        [Key]
         public int Id { get; set; }
-        [ForeignKey("Employee")]
         public string NIK { get; set; }
+        public string Name { get; set; }
+        public string DepartmentName { get; set; }
         public DateTime Date { get; set; }
         public DateTime? CheckIn { get; set; }
         public DateTime? CheckOut { get; set; }
         public string Reason { get; set; }
         public DateTime? ResponseDate { get; set; }
         public ResponseStatus ResponseStatus { get; set; }
+        public int? LateStatus { get; set; }
         public DateTime? ReviseCheckIn { get; set; }
         public DateTime? ReviseCheckOut { get; set; }
         public DateTime? ReviseDate { get; set; }
-        public virtual Employee Employee { get; set; }
     }
-
-    public enum ResponseStatus { None, Request, Approve, Reject }
 }
