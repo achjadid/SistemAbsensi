@@ -5,9 +5,15 @@ using API.ViewModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace API.Repositories
 {
@@ -57,12 +63,60 @@ namespace API.Repositories
             }
         }
 
+        private int CheckDuplicate(UserEmployeeVM userEmployeeVM, string action)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
+            {
+                var spCheckNIK = "SP_UsersCheckNIK";
+                var spCheckUsername = "SP_UsersCheckUsername";
+                if(action == "insert")
+                {
+                    parameters.Add("@NIK", userEmployeeVM.NIK);
+                    var checkNIK = connection.Query<User>(spCheckNIK, parameters, commandType: CommandType.StoredProcedure);
+                    if (checkNIK.Count() >= 1)
+                    {
+                        return -10;
+                    }
+
+                    parameters = new DynamicParameters();
+                    parameters.Add("@Username", userEmployeeVM.Username);
+                    var checkUsername = connection.Query<User>(spCheckUsername, parameters, commandType: CommandType.StoredProcedure);
+                    if (checkUsername.Count() >= 1)
+                    {
+                        return -11;
+                    }
+                }
+                else
+                {
+                    parameters.Add("@NIK", userEmployeeVM.NIK);
+                    var checkNIK = connection.QuerySingleOrDefault<User>(spCheckNIK, parameters, commandType: CommandType.StoredProcedure);
+
+                    parameters = new DynamicParameters();
+                    parameters.Add("@Username", userEmployeeVM.Username);
+                    var checkUsername = connection.QuerySingleOrDefault<User>(spCheckUsername, parameters, commandType: CommandType.StoredProcedure);
+                    if (checkUsername != null && checkUsername.Username != checkNIK.Username)
+                    {
+                        return -11;
+                    }
+                }
+
+                return 1;
+            }
+        }
+
         public virtual int InsertUserEmployee(UserEmployeeVM userEmployeeVM)
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
+                int checkDuplicate = CheckDuplicate(userEmployeeVM, "insert");
+                if(checkDuplicate < 1) 
+                {
+                    return checkDuplicate;
+                }
+
                 string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
+                //parameters = new DynamicParameters();
                 var spName = "SP_UsersEmployeeInsert";
                 parameters.Add("@NIK", userEmployeeVM.NIK);
                 parameters.Add("@Username", userEmployeeVM.Username);
@@ -85,12 +139,21 @@ namespace API.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
+                int checkDuplicate = CheckDuplicate(userEmployeeVM, "update");
+                if (checkDuplicate < 1)
+                {
+                    return checkDuplicate;
+                }
+
                 string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
                 var spName = "SP_UsersEmployeeUpdate";
                 parameters.Add("@NIK", userEmployeeVM.NIK);
                 parameters.Add("@Username", userEmployeeVM.Username);
-                parameters.Add("@Password", passwordHash);
+                if (userEmployeeVM.Password != null && userEmployeeVM.Password != "")
+                {
+                    string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
+                    parameters.Add("@Password", passwordHash);
+                }
                 parameters.Add("@RoleId", userEmployeeVM.RoleId);
                 parameters.Add("@Name", userEmployeeVM.Name);
                 parameters.Add("@Email", userEmployeeVM.Email);

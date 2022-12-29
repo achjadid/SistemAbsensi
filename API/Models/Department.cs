@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,7 +12,9 @@ namespace API.Models
         public string DepartmentName { get; set; }
         [ForeignKey("EmployeeSupervisor")]
         public string SupervisorNIK { get; set; }
+        [JsonIgnore]
         public virtual Employee EmployeeSupervisor { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Employee> EmployeeDepartments { get; set; }
     }
 }
