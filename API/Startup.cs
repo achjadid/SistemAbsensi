@@ -57,6 +57,7 @@ namespace API
             );
 
             services.AddScoped<LoginRepository>();
+            services.AddScoped<UserRepository>();
 
             services.AddDbContext<MyContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("APISistemAbsensi")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);

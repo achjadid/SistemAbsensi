@@ -39,9 +39,9 @@ namespace API.Repositories
                     return null;
                 }
 
-                //string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-                bool verified = BCrypt.Net.BCrypt.Verify("./][/'" + loginVM.Password + "[><]", userPassword.Password);
-                if(!verified)
+                //string passwordHash = BCrypt.Net.BCrypt.HashPassword(loginVM.Password);
+                bool verified = BCrypt.Net.BCrypt.Verify(loginVM.Password, userPassword.Password);
+                if (!verified)
                 {
                     return null;
                 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
@@ -11,6 +12,9 @@ namespace API.Models
         public string Password { get; set; }
         [ForeignKey("Role")]
         public int RoleId { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public virtual Employee Employee { get; set; }
         public virtual Role Role { get; set; }
     }

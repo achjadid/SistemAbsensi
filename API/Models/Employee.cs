@@ -17,6 +17,9 @@ namespace API.Models
         public string Address { get; set; }
         [ForeignKey("Departments")]
         public int DepartmentId { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public virtual User User { get; set; }
         public virtual Department DepartmentSupervisor { get; set; }
         public virtual Department Departments { get; set; }
