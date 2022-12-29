@@ -1,6 +1,7 @@
 ﻿using API.Contexts;
 using API.Models;
 using API.Repositories.Interface;
+using API.ViewModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +20,26 @@ namespace API.Repositories
             this.context = context;
         }
 
+        DynamicParameters parameters = new DynamicParameters();
+
         public IEnumerable<Department> Get()
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
+                //var spName = "SP_DepartmentsGetAll";
+                //var res = connection.Query<Department>(spName, commandType: CommandType.StoredProcedure);
+                //return res;
+                throw new System.NotImplementedException();
+            }
+        }
+
+        public virtual IEnumerable<DepartmentVM> GetByRole(int Id)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
+            {
                 var spName = "SP_DepartmentsGetAll";
-                var res = connection.Query<Department>(spName, commandType: CommandType.StoredProcedure);
+                parameters.Add("@RoleId", Id);
+                var res = connection.Query<DepartmentVM>(spName, parameters, commandType: CommandType.StoredProcedure);
                 return res;
             }
         }

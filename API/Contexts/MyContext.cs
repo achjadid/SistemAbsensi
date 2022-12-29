@@ -40,5 +40,10 @@ namespace API.Contexts
                 .HasMany(a => a.AttendanceHistories)
                 .WithOne(b => b.Employee);
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLazyLoadingProxies();
+        }
     }
 }
