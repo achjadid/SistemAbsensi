@@ -4,6 +4,7 @@ using API.Repositories.Interface;
 using API.ViewModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -71,14 +72,6 @@ namespace API.Repositories
                 var spCheckUsername = "SP_UsersCheckUsername";
                 if(action == "insert")
                 {
-                    parameters.Add("@NIK", userEmployeeVM.NIK);
-                    var checkNIK = connection.Query<User>(spCheckNIK, parameters, commandType: CommandType.StoredProcedure);
-                    if (checkNIK.Count() >= 1)
-                    {
-                        return -10;
-                    }
-
-                    parameters = new DynamicParameters();
                     parameters.Add("@Username", userEmployeeVM.Username);
                     var checkUsername = connection.Query<User>(spCheckUsername, parameters, commandType: CommandType.StoredProcedure);
                     if (checkUsername.Count() >= 1)
@@ -109,16 +102,17 @@ namespace API.Repositories
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
                 int checkDuplicate = CheckDuplicate(userEmployeeVM, "insert");
-                if(checkDuplicate < 1) 
+                if(checkDuplicate < 1)
                 {
                     return checkDuplicate;
                 }
 
+                string generatedNIK = GenerateNIK();
                 string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
                 //parameters = new DynamicParameters();
                 var spName = "SP_UsersEmployeeInsert";
-                parameters.Add("@NIK", userEmployeeVM.NIK);
+                parameters.Add("@NIK", generatedNIK);
                 parameters.Add("@Username", userEmployeeVM.Username);
                 parameters.Add("@Password", passwordHash);
                 parameters.Add("@RoleId", userEmployeeVM.RoleId);
@@ -199,6 +193,31 @@ namespace API.Repositories
                 var insert = connection.Execute(procName, parameters, commandType: CommandType.StoredProcedure);
                 return insert;
             }
+        }
+
+        public string GenerateNIK()
+        {
+            var lastId = context.Users.FromSqlRaw(
+                "SELECT TOP 1 * " +
+                "FROM Users " +
+                "WHERE len(NIK) = 12 " +
+                "ORDER BY RIGHT(NIK, 4) desc"
+                ).ToList();
+            int highestId = 0;
+            if (lastId.Any())
+            {
+                var newId = lastId[0].NIK;
+                newId = newId.Substring(newId.Length - 4);
+                highestId = Convert.ToInt32(newId);
+            }
+
+            int increamentId = highestId + 1;
+            string generatedNIK = increamentId.ToString().PadLeft(4, '0');
+            DateTime today = DateTime.Today;
+            var dateNow = today.ToString("yyyyddMM");
+            generatedNIK = dateNow + generatedNIK;
+
+            return generatedNIK;
         }
     }
 }

@@ -69,10 +69,6 @@ namespace API.Controllers
             {
                 return StatusCode(200, new { status = HttpStatusCode.OK, message = "Data Berhasil Dimasukkan", Data = insert });
             }
-            else if(insert == -10)
-            {
-                return StatusCode(500, new { status = HttpStatusCode.OK, message = "Gagal Memasukkan Data. NIK sudah digunakan.", Data = insert });
-            }
             else if (insert == -11)
             {
                 return StatusCode(500, new { status = HttpStatusCode.OK, message = "Gagal Memasukkan Data. Username sudah digunakan.", Data = insert });

@@ -50,7 +50,7 @@ namespace API.Repositories
                 {
                     var recordDateTime = item.Date;
                     string recordDate = recordDateTime.ToString("yyyy/MM/dd");
-                    DateTime checkInUser = item.CheckIn.HasValue? DateTime.Parse(item.CheckIn.ToString()) : recordDateTime.Date.AddHours(10).AddMinutes(0).AddSeconds(1);
+                    DateTime checkInUser = item.CheckIn.HasValue ? DateTime.Parse(item.CheckIn.ToString()) : recordDateTime.Date.AddHours(10).AddMinutes(0).AddSeconds(1);
                     DateTime checkInTime = DateTime.Parse(recordDate + " 10:00:00");
 
                     DateTime checkOutUser = item.CheckOut.HasValue ? DateTime.Parse(item.CheckOut.ToString()) : recordDateTime.Date.AddHours(14).AddMinutes(59).AddSeconds(59);
