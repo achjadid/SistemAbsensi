@@ -53,16 +53,17 @@ namespace API.Repositories
                     DateTime checkInUser = item.CheckIn.HasValue ? DateTime.Parse(item.CheckIn.ToString()) : recordDateTime.Date.AddHours(10).AddMinutes(0).AddSeconds(1);
                     DateTime checkInTime = DateTime.Parse(recordDate + " 10:00:00");
 
-                    DateTime checkOutUser = item.CheckOut.HasValue ? DateTime.Parse(item.CheckOut.ToString()) : recordDateTime.Date.AddHours(14).AddMinutes(59).AddSeconds(59);
+                    DateTime checkOutUser = item.CheckOut.HasValue ? DateTime.Parse(item.CheckOut.ToString()) : recordDateTime.Date.AddHours(15).AddMinutes(0).AddSeconds(0);
                     DateTime checkOutTime = DateTime.Parse(recordDate + " 15:00:00");
 
-                    if (checkInUser.TimeOfDay > checkInTime.TimeOfDay || checkOutUser.TimeOfDay < checkOutTime.TimeOfDay)
+                    item.LateStatus = 0;
+                    if (
+                        checkInUser.TimeOfDay > checkInTime.TimeOfDay || 
+                        checkOutUser.TimeOfDay < checkOutTime.TimeOfDay || 
+                        (recordDateTime.Date.AddHours(23).AddMinutes(59).AddSeconds(59) < DateTime.Now && !item.CheckOut.HasValue)
+                    )
                     {
                         item.LateStatus = 1;
-                    }
-                    else
-                    {
-                        item.LateStatus = 0;
                     }
                 }
                 return res;
@@ -86,13 +87,14 @@ namespace API.Repositories
                     DateTime checkOutUser = item.CheckOut.HasValue ? DateTime.Parse(item.CheckOut.ToString()) : recordDateTime.Date.AddHours(14).AddMinutes(59).AddSeconds(59);
                     DateTime checkOutTime = DateTime.Parse(recordDate + " 15:00:00");
 
-                    if (checkInUser.TimeOfDay > checkInTime.TimeOfDay || checkOutUser.TimeOfDay < checkOutTime.TimeOfDay)
+                    item.LateStatus = 0;
+                    if (
+                        checkInUser.TimeOfDay > checkInTime.TimeOfDay ||
+                        checkOutUser.TimeOfDay < checkOutTime.TimeOfDay ||
+                        (recordDateTime.Date.AddHours(23).AddMinutes(59).AddSeconds(59) < DateTime.Now && !item.CheckOut.HasValue)
+                    )
                     {
                         item.LateStatus = 1;
-                    }
-                    else
-                    {
-                        item.LateStatus = 0;
                     }
                 }
                 return res;
