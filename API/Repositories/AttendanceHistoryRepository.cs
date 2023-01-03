@@ -105,11 +105,22 @@ namespace API.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
-                string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                var spName = "SP_AttendanceHistoriesRevise";
+                var spDate = "SP_AttendanceHistoriesGetDetail";
                 parameters.Add("@Id", attendanceHistory.Id);
-                parameters.Add("@CheckIn", attendanceHistory.CheckIn);
-                parameters.Add("@CheckOut", attendanceHistory.CheckOut);
+                var attendanceRecord = connection.QuerySingleOrDefault<AttendanceHistory>(spDate, parameters, commandType: CommandType.StoredProcedure);
+                if(attendanceRecord == null)
+                {
+                    return 0;
+                }
+
+                string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                string checkIn = attendanceHistory.CheckIn.HasValue ? attendanceRecord.Date.ToString("yyyy-MM-dd") + " " + attendanceHistory.CheckIn?.ToString("HH:mm:ss") : null;
+                string checkOut = attendanceHistory.CheckOut.HasValue ? attendanceRecord.Date.ToString("yyyy-MM-dd") + " " + attendanceHistory.CheckOut?.ToString("HH:mm:ss") : null;
+                var spName = "SP_AttendanceHistoriesRevise";
+                parameters = new DynamicParameters();
+                parameters.Add("@Id", attendanceHistory.Id);
+                parameters.Add("@CheckIn", checkIn);
+                parameters.Add("@CheckOut", checkOut);
                 parameters.Add("@Reason", attendanceHistory.Reason);
                 parameters.Add("@ReviseDate", time);
                 var revise = connection.Execute(spName, parameters, commandType: CommandType.StoredProcedure);

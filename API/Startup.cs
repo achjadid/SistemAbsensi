@@ -58,6 +58,7 @@ namespace API
 
             services.AddScoped<LoginRepository>();
             services.AddScoped<UserRepository>();
+            services.AddScoped<EmployeeRepository>();
             services.AddScoped<RoleRepository>();
             services.AddScoped<DepartmentRepository>();
             services.AddScoped<AttendanceHistoryRepository>();

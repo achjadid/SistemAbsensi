@@ -34,8 +34,6 @@ namespace API.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
-                string password = "jadid1234";
-                string passwordHash = BCrypt.Net.BCrypt.HashPassword("./][/'" + password + "[><]");
                 var spName = "SP_UsersEmployeeGetAll";
                 var res = connection.Query<UserEmployeeVM>(spName, parameters, commandType: CommandType.StoredProcedure);
                 return res;
