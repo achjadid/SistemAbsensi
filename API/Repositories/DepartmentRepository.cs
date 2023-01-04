@@ -35,6 +35,17 @@ namespace API.Repositories
             }
         }
 
+        public IEnumerable<DepartmentVM> GetDetailDepartment()
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
+            {
+                var spName = "SP_DepartmentsGetAll";
+                var res = connection.Query<DepartmentVM>(spName, commandType: CommandType.StoredProcedure);
+                return res;
+                //throw new System.NotImplementedException();
+            }
+        }
+
         //public virtual IEnumerable<DepartmentVM> GetByRole(int Id)
         //{
         //    using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))

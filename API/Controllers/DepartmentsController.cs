@@ -22,7 +22,7 @@ namespace API.Controllers
         [HttpGet]
         public virtual ActionResult Get()
         {
-            var get = repository.Get();
+            var get = repository.GetDetailDepartment();
             if (get.Count() != 0)
             {
                 return StatusCode(200, new { status = HttpStatusCode.OK, message = get.Count() + " Data Ditemukan", Data = get });
