@@ -113,7 +113,7 @@ namespace API.Repositories
                 parameters.Add("@NIK", generatedNIK);
                 parameters.Add("@Username", userEmployeeVM.Username);
                 parameters.Add("@Password", passwordHash);
-                parameters.Add("@RoleId", userEmployeeVM.RoleId);
+                //parameters.Add("@RoleId", userEmployeeVM.RoleId);
                 parameters.Add("@Name", userEmployeeVM.Name);
                 parameters.Add("@Email", userEmployeeVM.Email);
                 parameters.Add("@BirthDate", userEmployeeVM.BirthDate);
@@ -146,7 +146,7 @@ namespace API.Repositories
                     string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
                     parameters.Add("@Password", passwordHash);
                 }
-                parameters.Add("@RoleId", userEmployeeVM.RoleId);
+                //parameters.Add("@RoleId", userEmployeeVM.RoleId);
                 parameters.Add("@Name", userEmployeeVM.Name);
                 parameters.Add("@Email", userEmployeeVM.Email);
                 parameters.Add("@BirthDate", userEmployeeVM.BirthDate);

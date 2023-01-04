@@ -43,7 +43,7 @@ namespace API.Controllers
             }
             else
             {
-                return StatusCode(404, new { status = HttpStatusCode.NotFound, message = get.Count() + " Data Ditemukan", Data = get });
+                return StatusCode(200, new { status = HttpStatusCode.NotFound, message = get.Count() + " Data Ditemukan", Data = get });
             }
         }
 
@@ -57,7 +57,7 @@ namespace API.Controllers
             }
             else
             {
-                return StatusCode(404, new { status = HttpStatusCode.NotFound, message = get.Count() + " Data Ditemukan", Data = get });
+                return StatusCode(200, new { status = HttpStatusCode.NotFound, message = get.Count() + " Data Ditemukan", Data = get });
             }
         }
 
