@@ -108,6 +108,7 @@ namespace API.Repositories
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(generatedPassword);
 
                 var spName = "SP_UsersEmployeeInsert";
+                parameters = new DynamicParameters();
                 parameters.Add("@NIK", generatedNIK);
                 parameters.Add("@Username", generatedUsername);
                 parameters.Add("@Password", passwordHash);
