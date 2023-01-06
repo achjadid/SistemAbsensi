@@ -15,6 +15,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace API.Repositories
@@ -214,7 +215,6 @@ namespace API.Repositories
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
                 string generatedUsername = "";
-                int generatedNumber = 0;
                 string[] splittedName = name.Split(' ');
                 if(splittedName.Length > 1)
                 {
@@ -235,7 +235,6 @@ namespace API.Repositories
                 var checkUsername = connection.Query<User>(spCheckUsername, parameters, commandType: CommandType.StoredProcedure);
                 if (checkUsername.Count() > 0)
                 {
-                    generatedNumber = checkUsername.Count();
                     generatedUsername += checkUsername.Count();
                 }
 
@@ -246,10 +245,21 @@ namespace API.Repositories
         private string GeneratePassword(string username)
         {
             string generatedPassword = "";
+            string number = "654321";
+            Match match = Regex.Match(username, @"\d+");
+            if(match.Success)
+            {
+                number = match.Value.ToString() + number;
+            }
+
             string[] splittedName = username.Split('.');
             if (splittedName.Length > 1)
             {
-                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + splittedName[1].Substring(0, 1)[0].ToString().ToUpper() + "654321";
+                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + splittedName[1].Substring(0, 1)[0].ToString().ToUpper() + number;
+            }
+            else if(splittedName.Length == 1) 
+            {
+                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + number;
             }
 
             return generatedPassword;
