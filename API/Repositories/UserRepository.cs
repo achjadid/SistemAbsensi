@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -99,21 +100,17 @@ namespace API.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
-                int checkDuplicate = CheckDuplicate(userEmployeeVM, "insert");
-                if(checkDuplicate < 1)
-                {
-                    return checkDuplicate;
-                }
-
                 string generatedNIK = GenerateNIK();
+                string generatedUsername = GenerateUsername(userEmployeeVM.Name);
+                string generatedPassword = GeneratePassword(generatedUsername);
+                if (generatedUsername == "" || generatedPassword == "") return -1;
                 string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
-                //parameters = new DynamicParameters();
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(generatedPassword);
+
                 var spName = "SP_UsersEmployeeInsert";
                 parameters.Add("@NIK", generatedNIK);
-                parameters.Add("@Username", userEmployeeVM.Username);
+                parameters.Add("@Username", generatedUsername);
                 parameters.Add("@Password", passwordHash);
-                //parameters.Add("@RoleId", userEmployeeVM.RoleId);
                 parameters.Add("@Name", userEmployeeVM.Name);
                 parameters.Add("@Email", userEmployeeVM.Email);
                 parameters.Add("@BirthDate", userEmployeeVM.BirthDate);
@@ -131,22 +128,15 @@ namespace API.Repositories
         {
             using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
             {
-                int checkDuplicate = CheckDuplicate(userEmployeeVM, "update");
-                if (checkDuplicate < 1)
-                {
-                    return checkDuplicate;
-                }
-
                 string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 var spName = "SP_UsersEmployeeUpdate";
                 parameters.Add("@NIK", userEmployeeVM.NIK);
-                parameters.Add("@Username", userEmployeeVM.Username);
-                if (userEmployeeVM.Password != null && userEmployeeVM.Password != "")
-                {
-                    string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
-                    parameters.Add("@Password", passwordHash);
-                }
-                //parameters.Add("@RoleId", userEmployeeVM.RoleId);
+                //parameters.Add("@Username", userEmployeeVM.Username);
+                //if (userEmployeeVM.Password != null && userEmployeeVM.Password != "")
+                //{
+                //    string passwordHash = BCrypt.Net.BCrypt.HashPassword(userEmployeeVM.Password);
+                //    parameters.Add("@Password", passwordHash);
+                //}
                 parameters.Add("@Name", userEmployeeVM.Name);
                 parameters.Add("@Email", userEmployeeVM.Email);
                 parameters.Add("@BirthDate", userEmployeeVM.BirthDate);
@@ -193,7 +183,7 @@ namespace API.Repositories
             }
         }
 
-        public string GenerateNIK()
+        private string GenerateNIK()
         {
             var lastId = context.Users.FromSqlRaw(
                 "SELECT TOP 1 * " +
@@ -216,6 +206,52 @@ namespace API.Repositories
             generatedNIK = dateNow + generatedNIK;
 
             return generatedNIK;
+        }
+
+        private string GenerateUsername(string name)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
+            {
+                string generatedUsername = "";
+                int generatedNumber = 0;
+                string[] splittedName = name.Split(' ');
+                if(splittedName.Length > 1)
+                {
+                    generatedUsername = (splittedName[0] + "." + splittedName[splittedName.Length - 1]).ToLower();
+
+                }
+                else if(splittedName.Length == 1)
+                {
+                    generatedUsername = splittedName[0].ToLower();
+                }
+                else
+                {
+                    return generatedUsername;
+                }
+                var spCheckUsername = "SP_UsersCheckUsername";
+                parameters.Add("@Username", generatedUsername);
+                parameters.Add("@Generated", 1);
+                var checkUsername = connection.Query<User>(spCheckUsername, parameters, commandType: CommandType.StoredProcedure);
+                if (checkUsername.Count() > 0)
+                {
+                    generatedNumber = checkUsername.Count();
+                    generatedUsername += checkUsername.Count();
+                }
+
+                return generatedUsername;
+            }
+        }
+
+        private string GeneratePassword(string username)
+        {
+            string generatedPassword = "";
+            string[] splittedName = username.Split('.');
+            if (splittedName.Length > 1)
+            {
+                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + splittedName[1].Substring(0, 1)[0].ToString().ToUpper() + "654321";
+            }
+
+            return generatedPassword;
         }
     }
 }
