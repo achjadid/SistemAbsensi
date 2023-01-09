@@ -60,7 +60,7 @@ namespace API.Repositories
                 userToken.Token = token;
 
                 string defaultPassword = GeneratePassword(loginVM.Username);
-                if (loginVM.Password == defaultPassword)
+                if (loginVM.Password == defaultPassword && userToken.RoleId != 1)
                 {
                     userToken.DefaultPassword = true;
                 }
