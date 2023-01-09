@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Models;
+using System.Text.RegularExpressions;
 
 namespace API.Repositories
 {
@@ -58,6 +59,12 @@ namespace API.Repositories
                 string token = GenerateJwtToken(userToken);
                 userToken.Token = token;
 
+                string defaultPassword = GeneratePassword(loginVM.Username);
+                if (loginVM.Password == defaultPassword)
+                {
+                    userToken.DefaultPassword = true;
+                }
+
                 return userToken;
             }
         }
@@ -93,6 +100,29 @@ namespace API.Repositories
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string GeneratePassword(string username)
+        {
+            string generatedPassword = "";
+            string number = "654321";
+            Match match = Regex.Match(username, @"\d+");
+            if (match.Success)
+            {
+                number = match.Value.ToString() + number;
+            }
+
+            string[] splittedName = username.Split('.');
+            if (splittedName.Length > 1)
+            {
+                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + splittedName[1].Substring(0, 1)[0].ToString().ToUpper() + number;
+            }
+            else if (splittedName.Length == 1)
+            {
+                generatedPassword = splittedName[0].Substring(0, 1)[0].ToString().ToUpper() + number;
+            }
+
+            return generatedPassword;
         }
     }
 }

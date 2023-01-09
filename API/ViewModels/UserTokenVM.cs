@@ -10,5 +10,6 @@
         public string RoleName { get; set; }
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
+        public bool DefaultPassword { get; set; }
     }
 }
