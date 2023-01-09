@@ -1,4 +1,5 @@
-﻿using API.Repositories;
+﻿using API.Models;
+using API.Repositories;
 using API.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -112,6 +113,34 @@ namespace API.Controllers
             else
             {
                 return StatusCode(500, new { status = HttpStatusCode.InternalServerError, message = "Terjadi Kesalahan", Data = delete });
+            }
+        }
+
+        [HttpPut("reset-password")]
+        public virtual ActionResult ResetPassword(User user)
+        {
+            var update = repository.UpdatePassword(user, true);
+            if (update >= 1)
+            {
+                return StatusCode(200, new { status = HttpStatusCode.OK, message = "Password Berhasil Direset", Data = update });
+            }
+            else
+            {
+                return StatusCode(500, new { status = HttpStatusCode.InternalServerError, message = "Gagal Mereset Password", Data = update });
+            }
+        }
+
+        [HttpPut("update-password")]
+        public virtual ActionResult UpdatePassword(User user)
+        {
+            var update = repository.UpdatePassword(user);
+            if (update >= 1)
+            {
+                return StatusCode(200, new { status = HttpStatusCode.OK, message = "Password Berhasil Diperbaharui", Data = update });
+            }
+            else
+            {
+                return StatusCode(500, new { status = HttpStatusCode.InternalServerError, message = "Gagal Memperbaharui Password", Data = update });
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using API.Repositories;
+﻿using API.Models;
+using API.Repositories;
+using API.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -56,6 +58,20 @@ namespace API.Controllers
             else
             {
                 return StatusCode(200, new { status = HttpStatusCode.NotFound, message = get.Count() + " Data Ditemukan", Data = get });
+            }
+        }
+
+        [HttpPut]
+        public virtual ActionResult Update(Employee employee)
+        {
+            var update = repository.Update(employee);
+            if (update >= 1)
+            {
+                return StatusCode(200, new { status = HttpStatusCode.OK, message = "Data Berhasil Diperbaharui", Data = update });
+            }
+            else
+            {
+                return StatusCode(500, new { status = HttpStatusCode.InternalServerError, message = "Gagal Memperbaharui Data", Data = update });
             }
         }
     }

@@ -152,6 +152,30 @@ namespace API.Repositories
             }
         }
 
+        public int UpdatePassword(User user, bool reset = false)
+        {
+            using (SqlConnection connection = new SqlConnection(_configuration["ConnectionStrings:APISistemAbsensi"]))
+            {
+                string password = user.Password;
+                if (reset)
+                {
+                    password = GeneratePassword(user.Username);
+                }
+
+                if (password == "") return -1;
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+                string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                var spName = "SP_UsersUpdatePassword";
+                parameters.Add("@NIK", user.NIK);
+                parameters.Add("@Password", passwordHash);
+                parameters.Add("@UpdatedAt", time);
+                var update = connection.Execute(spName, parameters, commandType: CommandType.StoredProcedure);
+                return update;
+            }
+        }
+
         public IEnumerable<User> Get()
         {
             throw new System.NotImplementedException();
